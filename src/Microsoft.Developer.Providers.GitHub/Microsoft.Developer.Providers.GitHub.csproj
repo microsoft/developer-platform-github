@@ -19,29 +19,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitHubJwt" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.Functions.Worker" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" OutputItemType="Analyzer" />
-    <PackageReference Include="Microsoft.Azure.AppConfiguration.Functions.Worker" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.DurableTask.Generators" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.Identity.Web.Azure" />
     <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
-    <PackageReference Include="GitHubJwt" />
     <PackageReference Include="Octokit" />
     <PackageReference Include="Octokit.Webhooks" />
     <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.Developer.Azure\Microsoft.Developer.Azure.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.Developer.Data.Cosmos\Microsoft.Developer.Data.Cosmos.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.Developer.Hosting.Functions\Microsoft.Developer.Hosting.Functions.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.Developer.Providers\Microsoft.Developer.Providers.csproj" />
+    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Azure\Microsoft.Developer.Azure.csproj" />
+    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Data.Cosmos\Microsoft.Developer.Data.Cosmos.csproj" />
+    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Hosting.Functions\Microsoft.Developer.Hosting.Functions.csproj" />
+    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Providers\Microsoft.Developer.Providers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
