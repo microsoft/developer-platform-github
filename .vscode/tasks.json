@@ -32,7 +32,8 @@
                 // "close": true,
                 "group": "providers",
                 "panel": "dedicated",
-            }
+            },
+            "dependsOn": "build sln"
         },
         {
             "label": "terminate tasks",
