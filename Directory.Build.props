@@ -26,10 +26,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
+    <!-- <InformationalVersion>$(GitVersion_InformationalVersion)</InformationalVersion>
     <FileVersion>$(GitVersion_MajorMinorPatch)</FileVersion>
     <AssemblyVersion>$(GitVersion_AssemblySemVer)</AssemblyVersion>
-    <Version>$(GitVersion_NuGetVersionV2)</Version>
+    <Version>$(GitVersion_NuGetVersionV2)</Version> -->
     <Version Condition=" '$(Version)' == '' ">0.0.1</Version>
   </PropertyGroup>
 
