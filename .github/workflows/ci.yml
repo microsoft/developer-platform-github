@@ -1,0 +1,13 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  release:
+    uses: microsoft/developer-platform-providers/.github/workflows/ci.yml@main
+    with:
+      sln: Microsoft.Developer.Providers.GitHub.sln

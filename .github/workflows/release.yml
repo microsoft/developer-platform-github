@@ -1,0 +1,17 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # the version number changes in version.txt
+      # so only release if that file has changed
+      - 'src/Microsoft.Developer.Providers.GitHub/version.txt'
+
+jobs:
+  release:
+    uses: microsoft/developer-platform-providers/.github/workflows/release.yml@main
+    with:
+      name: GitHub
+      path: src/Microsoft.Developer.Providers.GitHub
+    secrets: inherit

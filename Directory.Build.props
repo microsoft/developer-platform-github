@@ -44,7 +44,7 @@
   <PropertyGroup>
     <ContainerVendor>Microsoft</ContainerVendor>
     <ContainerLicenseExpression>MIT</ContainerLicenseExpression>
-    <ContainerInformationUrl>https://github.com/microsoft/developer-platform-pr</ContainerInformationUrl>
+    <ContainerInformationUrl>https://github.com/microsoft/developer-platform-github</ContainerInformationUrl>
     <ContainerGenerateLabelsImageCreated>true</ContainerGenerateLabelsImageCreated>
   </PropertyGroup>
 
