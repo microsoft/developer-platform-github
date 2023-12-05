@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  release:
+  ci:
     uses: microsoft/developer-platform-providers/.github/workflows/ci.yml@main
     with:
       sln: Microsoft.Developer.Providers.GitHub.sln

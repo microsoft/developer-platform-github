@@ -42,7 +42,6 @@
         {
             "label": "clean sln",
             "command": "dotnet",
-            "type": "shell",
             "args": [
                 "clean",
                 "${workspaceFolder}/Microsoft.Developer.Providers.GitHub.sln",
@@ -58,7 +57,6 @@
         {
             "label": "build sln",
             "command": "dotnet",
-            "type": "shell",
             "args": [
                 "build",
                 "${workspaceFolder}/Microsoft.Developer.Providers.GitHub.sln",
@@ -71,5 +69,15 @@
                 "group": "build",
             }
         },
+        {
+            "label": "clear nuget cache",
+            "command": "dotnet",
+            "args": [
+                "nuget",
+                "locals",
+                "all",
+                "--clear"
+            ],
+        }
     ]
 }
