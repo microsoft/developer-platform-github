@@ -12,7 +12,7 @@
     <ContainerVersion>$(Version)</ContainerVersion>
     <ContainerTitle>Microsoft Developer Platform GitHub Provider</ContainerTitle>
     <ContainerDescription>The Microsoft Developer Platform GitHub Provider.</ContainerDescription>
-    <ContainerDocumentationUrl>https://github.com/microsoft/developer-platform-pr/tree/main/providers/Microsoft.Developer.Providers.GitHub</ContainerDocumentationUrl>
+    <ContainerDocumentationUrl>https://github.com/microsoft/developer-platform-github</ContainerDocumentationUrl>
     <ContainerRepository>developer-platform/provider-github</ContainerRepository>
     <ContainerBaseImage>mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0</ContainerBaseImage>
     <UserSecretsId>82c19076-faa2-4dc6-9d14-05975dfb4efd</UserSecretsId>
