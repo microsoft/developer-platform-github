@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <!-- https://github.com/Azure/azure-functions-dotnet-worker/issues/2072 -->
+    <FunctionsEnableWorkerIndexing>False</FunctionsEnableWorkerIndexing>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ContainerVersion>$(Version)</ContainerVersion>
+    <ContainerTitle>Microsoft Developer Platform GitHub Provider</ContainerTitle>
+    <ContainerDescription>The Microsoft Developer Platform GitHub Provider.</ContainerDescription>
+    <ContainerDocumentationUrl>https://github.com/microsoft/developer-platform-pr/tree/main/providers/Microsoft.Developer.Providers.GitHub</ContainerDocumentationUrl>
+    <ContainerRepository>developer-platform/provider-github</ContainerRepository>
+    <ContainerBaseImage>mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0</ContainerBaseImage>
+    <UserSecretsId>82c19076-faa2-4dc6-9d14-05975dfb4efd</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" OutputItemType="Analyzer" />
+    <PackageReference Include="Microsoft.Azure.AppConfiguration.Functions.Worker" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" />
+    <PackageReference Include="Microsoft.DurableTask.Generators" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+    <PackageReference Include="Microsoft.Identity.Web" />
+    <PackageReference Include="Microsoft.Identity.Web.Azure" />
+    <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" />
+    <PackageReference Include="GitHubJwt" />
+    <PackageReference Include="Octokit" />
+    <PackageReference Include="Octokit.Webhooks" />
+    <PackageReference Include="System.Linq.Async" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Microsoft.Developer.Azure\Microsoft.Developer.Azure.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Developer.Data.Cosmos\Microsoft.Developer.Data.Cosmos.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Developer.Hosting.Functions\Microsoft.Developer.Hosting.Functions.csproj" />
+    <ProjectReference Include="..\..\src\Microsoft.Developer.Providers\Microsoft.Developer.Providers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
+  </ItemGroup>
+
+  <!-- Start mac M2 bug workaround -->
+  <!-- https://github.com/Azure/azure-functions-durable-extension/issues/2446#issuecomment-1517203490 -->
+  <ItemGroup>
+    <PackageReference Include="Contrib.Grpc.Core.M1" />
+  </ItemGroup>
+
+  <Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build">
+    <ItemGroup>
+      <NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="$(OutDir)runtimes/osx-arm64/native/*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" />
+  </Target>
+  <!-- End mac M2 bug workaround -->
+</Project>

@@ -1,0 +1,75 @@
+{
+    "version": "2.0.0",
+    "type": "shell",
+    "options": {
+        "cwd": "${workspaceFolder}"
+    },
+    "problemMatcher": [],
+    "presentation": {
+        "showReuseMessage": false,
+    },
+    "args": [],
+    "inputs": [
+        {
+            "id": "terminate",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
+        }
+    ],
+    "tasks": [
+        {
+            "label": "func: start github",
+            "type": "func",
+            "options": {
+                "cwd": "${workspaceFolder}/artifacts/bin/Microsoft.Developer.Providers.GitHub/debug"
+            },
+            "command": "host start --dotnet-isolated-debug --no-build --port 7065",
+            "isBackground": true,
+            "problemMatcher": "$func-dotnet-watch",
+            "presentation": {
+                // "clear": true,
+                // "close": true,
+                "group": "providers",
+                "panel": "dedicated",
+            }
+        },
+        {
+            "label": "terminate tasks",
+            "command": "echo ${input:terminate}",
+            "problemMatcher": []
+        },
+        {
+            "label": "clean sln",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "clean",
+                "${workspaceFolder}/Microsoft.Developer.Providers.GitHub.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "hide": true,
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "group": "build",
+            }
+        },
+        {
+            "label": "build sln",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "${workspaceFolder}/Microsoft.Developer.Providers.GitHub.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "dependsOn": "clean sln",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "group": "build",
+            }
+        },
+    ]
+}
