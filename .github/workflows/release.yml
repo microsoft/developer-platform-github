@@ -3,9 +3,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths:
-      # the version number changes in version.txt
-      # so only release if that file has changed
+    paths: # only release if the version number changes in version.txt
       - 'src/Microsoft.Developer.Providers.GitHub/version.txt'
 
 jobs:
