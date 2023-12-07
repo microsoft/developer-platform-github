@@ -42,6 +42,8 @@ jobs:
           BUILD_DATE: ${{ steps.date.outputs.date }}
           IMAGE_VERSION: ${{ steps.version.outputs.fullSemVer }}
         with:
+          # only build and push if this is not a pull request
+          push: ${{ github.event_name != 'pull_request' }}
           file: ${{ env.PROJECT_PATH }}/Dockerfile
           context: ${{ env.PROJECT_PATH }}/
           build-args: |
