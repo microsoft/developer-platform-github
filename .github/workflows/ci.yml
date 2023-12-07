@@ -3,11 +3,29 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'tools/**'
+      - '**/*.md'
+      - '*.code-workspace'
+
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'tools/**'
+      - '**/*.md'
+      - '*.code-workspace'
 
 jobs:
-  ci:
-    uses: microsoft/developer-platform-providers/.github/workflows/ci.yml@main
-    with:
-      sln: Microsoft.Developer.Providers.GitHub.sln
+  build:
+    uses: ./.github/workflows/build.yml
+
+  release:
+    # only build and push if this is not a pull request
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: build
+    uses: ./.github/workflows/release.yml
+    secrets: inherit

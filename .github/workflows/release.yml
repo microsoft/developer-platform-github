@@ -1,15 +1,65 @@
 name: Release
 
-on:
-  push:
-    branches: [main]
-    paths: # only release if the version number changes in version.txt
-      - 'src/Microsoft.Developer.Providers.GitHub/version.txt'
+on: workflow_call
+
+env:
+  IMAGE_REGISTRY: ${{ vars.REGISTRY_URL || 'ghcr.io' }}
+  IMAGE_REPOSITORY: ${{ vars.REGISTRY_REPOSITORY || github.repository }}/provider
 
 jobs:
   release:
-    uses: microsoft/developer-platform-providers/.github/workflows/release.yml@main
-    with:
-      name: GitHub
-      path: src/Microsoft.Developer.Providers.GitHub
-    secrets: inherit
+    if: ${{ github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.15
+        with:
+          versionSpec: '5.12.0'
+
+      - name: Determine Version
+        id: version
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: true
+
+      - name: Publish
+        working-directory: ./src
+        run: dotnet publish -o home/site/wwwroot -p:Version="${{ steps.version.outputs.fullSemVer }}"
+
+      - name: Data
+        id: date
+        run: BUILD_DATE="`date -u +"%Y-%m-%dT%H:%M:%SZ"`" && echo "date=$BUILD_DATE" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        env:
+          BUILD_DATE: ${{ steps.date.outputs.date }}
+          IMAGE_VERSION: ${{ steps.version.outputs.fullSemVer }}
+        with:
+          file: ./src/Microsoft.Developer.Providers.GitHub/Dockerfile
+          context: ./src/Microsoft.Developer.Providers.GitHub/
+          build-args: |
+            BUILD_DATE=${{ env.BUILD_DATE }}
+            IMAGE_VERSION=${{ env.IMAGE_VERSION }}
+          tags: |
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_VERSION }}
+
+      - name: Create Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const releaseResult = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: 'v${{ steps.version.outputs.fullSemVer }}',
+              name: 'v${{ steps.version.outputs.fullSemVer }}',
+              prerelease: false,
+            });
+
+            const release = releaseResult.data;
