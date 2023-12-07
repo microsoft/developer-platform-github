@@ -416,7 +416,7 @@ local.settings.json
 sdks/**
 schemas/**
 
-# deploy/**
+deploy/**
 **/*.pem
 
 /deploy/**/params
