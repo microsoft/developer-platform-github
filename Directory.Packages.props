@@ -28,7 +28,7 @@
   <!-- Start mac M2 bug workaround -->
   <!-- https://github.com/Azure/azure-functions-durable-extension/issues/2446#issuecomment-1517203490 -->
   <ItemGroup>
-    <PackageVersion Include="Contrib.Grpc.Core.M1" Version="2.41.0" />
+    <PackageVersion Include="Contrib.Grpc.Core.M1" Version="2.44.0" />
   </ItemGroup>
   <!-- End mac M2 bug workaround -->
 </Project>
