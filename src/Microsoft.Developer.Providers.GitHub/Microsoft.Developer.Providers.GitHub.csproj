@@ -6,6 +6,7 @@
     <!-- https://github.com/Azure/azure-functions-dotnet-worker/issues/2072 -->
     <FunctionsEnableWorkerIndexing>False</FunctionsEnableWorkerIndexing>
     <OutputType>Exe</OutputType>
+    <UserSecretsId>82c19076-faa2-4dc6-9d14-05975dfb4efd</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,9 +14,9 @@
     <ContainerTitle>Microsoft Developer Platform GitHub Provider</ContainerTitle>
     <ContainerDescription>The Microsoft Developer Platform GitHub Provider.</ContainerDescription>
     <ContainerDocumentationUrl>https://github.com/microsoft/developer-platform-github</ContainerDocumentationUrl>
-    <ContainerRepository>developer-platform/provider-github</ContainerRepository>
     <ContainerBaseImage>mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0</ContainerBaseImage>
-    <UserSecretsId>82c19076-faa2-4dc6-9d14-05975dfb4efd</UserSecretsId>
+    <ContainerRepository>$(IMAGE_REPOSITORY)</ContainerRepository>
+    <ContainerRepository Condition=" '$(ContainerRepository)' == '' ">developer-platform/provider-github</ContainerRepository>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +28,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.DurableTask.Generators" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.Identity.Web" />
     <PackageReference Include="Microsoft.Identity.Web.Azure" />

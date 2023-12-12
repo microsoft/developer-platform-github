@@ -86,7 +86,7 @@ public class GitHubWebhookProcessor(ILogger<GitHubWebhookProcessor> log, IUserOA
         if (action == GithubAppAuthorizationAction.Revoked && hookEvent.Sender is User sender)
         {
             log.LogInformation("Removing mapped user for {Login}", sender.Login);
-            await logins.RemoveAsync(new GitHubUser(sender.Id, sender.Name, sender.Login), CancellationToken.None);
+            await logins.RemoveAsync(new GitHubUser { Id = sender.Id.ToString(), Name = sender.Name, Login = sender.Login }, CancellationToken.None);
         }
     }
 

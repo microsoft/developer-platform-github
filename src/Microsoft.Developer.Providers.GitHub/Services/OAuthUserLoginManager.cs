@@ -1,19 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Developer.Providers.GitHub.Model;
-using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
+using Microsoft.Developer.Data;
 using Microsoft.Extensions.Caching.Distributed;
 using Octokit;
 using Octokit.Internal;
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 
 namespace Microsoft.Developer.Providers.GitHub;
 
-public record GitHubUser(long Id, string? Name, string Login);
 
-public sealed class OAuthUserLoginManager(TimeProvider time, IGitHubAppService gh, IDistributedCache cache, ISecretsManager secrets, IDbContextFactory<GitHubDbContext> factory) : IUserOAuthLoginManager, ILocalUserManager<GitHubUser>
+public sealed class OAuthUserLoginManager(TimeProvider time, IGitHubAppService gh, IDistributedCache cache, ISecretsManager secrets, IMappedUserRepository<MappedUser, GitHubUser> users) : IUserOAuthLoginManager, ILocalUserManager<MappedUser, GitHubUser>
 {
     private readonly SimpleJsonSerializer serializer = new();
 
@@ -40,26 +38,26 @@ public sealed class OAuthUserLoginManager(TimeProvider time, IGitHubAppService g
             {
                 if (await GitHubUserService.GetClient(accessToken).User.Current() is { } current)
                 {
-                    var ghUserId = new GitHubUser(current.Id, current.Name, current.Login);
-                    var refreshTokenKey = CreateRandomString();
+                    var ghUserId = new GitHubUser
+                    {
+                        Id = current.Id.ToString(),
+                        Name = current.Name,
+                        Login = current.Login,
+                    };
+
+                    var tokenSecretName = CreateRandomString();
 
                     // token can only be deserialized if serialized with the octokit's serializer
                     var accessTokenJson = serializer.Serialize(accessToken);
-                    await secrets.SetSecretAsync(refreshTokenKey, accessTokenJson, token);
+                    await secrets.SetSecretAsync(tokenSecretName, accessTokenJson, token);
 
-                    using var context = factory.CreateDbContext();
-
-                    context.Users.Add(new()
+                    _ = await users.AddAsync(new()
                     {
-                        Id = pendingState.User.UserId,
-                        Tenant = pendingState.User.TenantId,
-                        DevPlatformUser = pendingState.User,
-                        GitHubUser = ghUserId,
-                        RefreshTokenKey = refreshTokenKey,
+                        PlatformUser = pendingState.User,
+                        LocalUser = ghUserId,
+                        OauthTokenSecretName = tokenSecretName,
                         Expiration = time.GetUtcNow().AddSeconds(accessToken.RefreshTokenExpiresIn),
-                    });
-
-                    await context.SaveChangesAsync(token);
+                    }, token);
 
                     return pendingState.RedirectUri;
                 }
@@ -69,96 +67,63 @@ public sealed class OAuthUserLoginManager(TimeProvider time, IGitHubAppService g
         return null;
     }
 
+    private Task<MappedUser?> GetMappedUserAsync(MsDeveloperUserId user, CancellationToken token)
+        => users.GetAsync(user, token);
+
     private async Task<GitHubUser?> GetGitHubUserAsync(MsDeveloperUserId user)
+        => await users.GetAsync(user, default) is { } mapped ? mapped.LocalUser : null;
+
+    public async Task RemoveAsync(MsDeveloperUserId user, CancellationToken token)
     {
-        using var context = factory.CreateDbContext();
-
-        var result = await Filter(user, context.Users).FirstOrDefaultAsync();
-
-        return result?.GitHubUser;
-    }
-
-    public Task RemoveAsync(MsDeveloperUserId user, CancellationToken token)
-        => RemoveAsync(query => Filter(user, query), token);
-
-    public Task RemoveAsync(GitHubUser githubId, CancellationToken token)
-        => RemoveAsync(query => Filter(githubId, query), token);
-
-    private async Task RemoveAsync(Func<IQueryable<MappedUser>, IQueryable<MappedUser>> filter, CancellationToken token)
-    {
-        using var context = factory.CreateDbContext();
-
-        if (await filter(context.Users).FirstOrDefaultAsync(token) is { } user)
+        if (await users.GetAsync(user, token) is { } mapped)
         {
-            if (user.RefreshTokenKey is { } key)
-            {
-                await secrets.DeleteSecretAsync(key, token);
-            }
-
-            context.Users.Remove(user);
-
-            await context.SaveChangesAsync(token);
+            await RemoveAsync(mapped, token);
         }
     }
 
-    public Task<OauthToken?> GetTokenAsync(MsDeveloperUserId user, CancellationToken token)
-        => GetTokenAsync(query => Filter(user, query), token);
-
-    public Task<OauthToken?> GetTokenAsync(GitHubUser githubId, CancellationToken token)
-        => GetTokenAsync(query => Filter(githubId, query), token);
-
-    private async Task<OauthToken?> GetTokenAsync(Func<IQueryable<MappedUser>, IQueryable<MappedUser>> filter, CancellationToken token)
+    public async Task RemoveAsync(GitHubUser githubId, CancellationToken token)
     {
-        using var context = factory.CreateDbContext();
-
-        var key = await filter(context.Users)
-            .Select(u => u.RefreshTokenKey)
-            .FirstOrDefaultAsync(cancellationToken: token);
-
-        if (key is not null && await GetUserTokenAsync(key, token) is { } oauthToken && !string.IsNullOrEmpty(oauthToken?.AccessToken))
+        if (await users.GetAsync(githubId, token) is { } mapped)
         {
-            return oauthToken;
+            await RemoveAsync(mapped, token);
+        }
+    }
+
+    private async Task RemoveAsync(MappedUser mapped, CancellationToken token)
+    {
+        if (mapped.OauthTokenSecretName is { } key)
+        {
+            await secrets.DeleteSecretAsync(key, token);
         }
 
-        return null;
+        _ = await users.RemoveAsync(mapped, token);
     }
+
+    public async Task<OauthToken?> GetTokenAsync(MsDeveloperUserId user, CancellationToken token)
+        => await users.GetAsync(user, token) is { } mapped ? await GetTokenAsync(mapped, token) : null;
+
+    public async Task<OauthToken?> GetTokenAsync(GitHubUser githubId, CancellationToken token)
+        => await users.GetAsync(githubId, token) is { } mapped ? await GetTokenAsync(mapped, token) : null;
+
+    private async Task<OauthToken?> GetTokenAsync(MappedUser mapped, CancellationToken token)
+        => mapped.OauthTokenSecretName is { } key
+        && await GetUserTokenAsync(key, token) is { } oauthToken
+        && !string.IsNullOrEmpty(oauthToken?.AccessToken) ? oauthToken : null;
 
     private async Task<OauthToken?> GetUserTokenAsync(string key, CancellationToken token)
         => await secrets.GetSecretAsync<string>(key, token) is { } tokenJson ? serializer.Deserialize<OauthToken>(tokenJson) : null;
 
-    Task<GitHubUser?> ILocalUserManager<GitHubUser>.GetLocalUserAsync(MsDeveloperUserId user, CancellationToken token)
+    Task<GitHubUser?> ILocalUserManager<MappedUser, GitHubUser>.GetLocalUserAsync(MsDeveloperUserId user, CancellationToken token)
       => GetGitHubUserAsync(user);
 
-    async Task<MsDeveloperUserId?> ILocalUserManager<GitHubUser>.GetMsDeveloperUserAsync(GitHubUser user, CancellationToken token)
-    {
-        using var context = factory.CreateDbContext();
-
-        return await Filter(user, context.Users)
-            .Select(u => u.DevPlatformUser)
-            .FirstOrDefaultAsync(token);
-    }
+    async Task<MsDeveloperUserId?> ILocalUserManager<MappedUser, GitHubUser>.GetMsDeveloperUserAsync(GitHubUser user, CancellationToken token)
+        => await users.GetAsync(user, token) is { } mapped ? mapped.PlatformUser : null;
 
     async Task<bool> ILocalUserManager.HasLocalUserAsync(MsDeveloperUserId user, CancellationToken token)
-    {
-        using var context = factory.CreateDbContext();
+        => await users.GetAsync(user, token) is { };
 
-        var result = await Filter(user, context.Users)
-            .FirstOrDefaultAsync(token);
-
-        return result is { };
-    }
-
-    /// <summary>
-    /// Filter the query to only include the user with the given MsDeveloperUserId.
-    /// </summary>
-    private static IQueryable<MappedUser> Filter(MsDeveloperUserId user, IQueryable<MappedUser> query)
-        => query.Where(u => u.DevPlatformUser.UserId == user.UserId).WithPartitionKey(user.TenantId);
-
-    /// <summary>
-    /// Filter the query to only include the user with the given GitHub ID.
-    /// </summary>
-    private static IQueryable<MappedUser> Filter(GitHubUser githubId, IQueryable<MappedUser> query)
-        => query.Where(u => u.GitHubUser.Id == githubId.Id);
+    Task<MappedUser?> ILocalUserManager<MappedUser, GitHubUser>.GetMappedUserAsync(MsDeveloperUserId user, CancellationToken token)
+        => GetMappedUserAsync(user, token);
 
     private static string CreateRandomString()
     {
