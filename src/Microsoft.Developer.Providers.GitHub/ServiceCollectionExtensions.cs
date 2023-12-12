@@ -1,26 +1,59 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Developer.Providers.GitHub.Model;
+using System.Diagnostics;
+using Microsoft.Developer.Data;
+using Microsoft.Developer.Data.Cosmos;
 using Microsoft.Developer.Providers.GitHub.Webhooks;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Developer.Serialization.Json.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Octokit.Webhooks;
 
 namespace Microsoft.Developer.Providers.GitHub;
 
 public static class ServiceCollectionExtensions
 {
+    public static IDeveloperPlatformBuilder AddCosmos(this IDeveloperPlatformBuilder builder, IConfiguration config, bool removeTrace = true)
+    {
+        builder.Services
+            .AddSingleton(typeof(IDocumentRepositoryFactory<>), typeof(CosmosDocumentRepositoryFactory<>));
+
+        builder.Services
+            .Configure<CosmosOptions>(config.GetSection(CosmosOptions.Section));
+
+        builder.AddDocumentRepository<MappedUser>(nameof(MappedUser), options =>
+        {
+            options.DatabaseName = "GitHub";
+            options.ContainerName = "Users";
+            options.UniqueKeys.Add("/localUser/id");
+            options.UniqueKeys.Add("/localUser/login");
+            options.SerializerOptions = EntitySerializerOptions.Database;
+        });
+
+        builder.Services.AddSingleton<IMappedUserRepository<MappedUser, GitHubUser>, MappedUserRepository<MappedUser, GitHubUser>>(
+            services => new MappedUserRepository<MappedUser, GitHubUser>(
+                services.GetRequiredService<IDocumentRepositoryFactory<MappedUser>>().Create(nameof(MappedUser))));
+
+        if (removeTrace)
+        {
+            var defaultTrace = Type.GetType("Microsoft.Azure.Cosmos.Core.Trace.DefaultTrace,Microsoft.Azure.Cosmos.Direct");
+            var traceSource = (TraceSource?)defaultTrace?.GetProperty("TraceSource")?.GetValue(null);
+            traceSource?.Listeners.Remove("Default");
+        }
+
+        return builder;
+    }
+
     public static IDeveloperPlatformBuilder AddGitHubProvider(this IDeveloperPlatformBuilder builder, Action<IGitHubProviderBuilder> configure)
     {
         builder.Services.TryAddSingleton(TimeProvider.System);
+
         builder.Services
             .AddSingleton<IGitHubAppService, GitHubAppService>()
             .AddSingleton<OAuthUserLoginManager>()
-            .AddSingleton<ILocalUserManager<GitHubUser>>(ctx => ctx.GetRequiredService<OAuthUserLoginManager>())
+            .AddSingleton<ILocalUserManager<MappedUser, GitHubUser>>(ctx => ctx.GetRequiredService<OAuthUserLoginManager>())
             .AddSingleton<ILocalUserManager>(ctx => ctx.GetRequiredService<OAuthUserLoginManager>())
             .AddSingleton<IUserOAuthLoginManager>(ctx => ctx.GetRequiredService<OAuthUserLoginManager>());
 
@@ -48,32 +81,5 @@ public static class ServiceCollectionExtensions
             .AddSingleton<WebhookEventProcessor, GitHubWebhookProcessor>();
 
         return builder;
-    }
-
-    public static IGitHubProviderBuilder AddUserDatabase(this IGitHubProviderBuilder services, Action<DbContextOptionsBuilder> configure)
-    {
-        services.Services.AddHostedService<EnsureDbStartup<GitHubDbContext>>();
-        services.Services.AddDbContextFactory<GitHubDbContext>(options =>
-        {
-            configure(options);
-        });
-
-        return services;
-    }
-
-    private sealed class EnsureDbStartup<TContext>(IDbContextFactory<TContext> factory, ILogger<EnsureDbStartup<TContext>> logger) : BackgroundService
-        where TContext : DbContext
-    {
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            using var context = factory.CreateDbContext();
-
-            logger.LogDebug("Ensuring {Context} is available", typeof(TContext).Name);
-
-            if (await context.Database.EnsureCreatedAsync(stoppingToken))
-            {
-                logger.LogInformation("{Context} was created", typeof(TContext).Name);
-            }
-        }
     }
 }

@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using Microsoft.Developer.Azure;
-using Microsoft.Developer.Data;
 using Microsoft.Developer.Entities.Serialization;
 using Microsoft.Developer.Hosting.Middleware;
 using Microsoft.Developer.Providers.GitHub;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -48,10 +46,7 @@ var host = new HostBuilder()
             .AddGitHubProvider(builder => builder
                 .AddOptions(context.Configuration)
                 .AddWebhooks(context.Configuration)
-                .AddUserDatabase(options =>
-                {
-                    options.UseCosmos(context.Configuration["Cosmos:ConnectionString"]!, databaseName: "GitHub");
-                }));
+            );
     })
     .Build();
 
