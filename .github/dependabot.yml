@@ -15,13 +15,20 @@ updates:
       - colbylwilliams
     labels:
       - dependabot
+    groups:
+      Microsoft.Developer:
+        patterns:
+          - 'Microsoft.Developer.*'
 
   - package-ecosystem: 'github-actions'
     # Workflow files stored in the default location of `.github/workflows`. (You don't need to specify `/.github/workflows` for `directory`. You can use `directory: "/"`.)
     directory: '/'
-    reviewers:
-      - colbylwilliams
     schedule:
       interval: 'daily'
       time: '05:00'
       timezone: America/Los_Angeles
+    reviewers:
+      - colbylwilliams
+    labels:
+      - dependabot
+      - github_actions
