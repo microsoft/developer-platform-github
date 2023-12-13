@@ -37,19 +37,25 @@
     <PackageReference Include="System.Linq.Async" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Developer.Azure" />
-    <PackageReference Include="Microsoft.Developer.Data.Cosmos" />
-    <PackageReference Include="Microsoft.Developer.Hosting.Functions" />
-    <PackageReference Include="Microsoft.Developer.Providers" />
-  </ItemGroup>
+  <Choose>
+    <When Condition=" '$(Configuration)' == 'Debug' and '$(MsDeveloperUseLocalPackages)' == 'true' ">
+      <ItemGroup>
+        <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Azure\Microsoft.Developer.Azure.csproj" />
+        <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Data.Cosmos\Microsoft.Developer.Data.Cosmos.csproj" />
+        <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Hosting.Functions\Microsoft.Developer.Hosting.Functions.csproj" />
+        <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Providers\Microsoft.Developer.Providers.csproj" />
+      </ItemGroup>
+    </When>
 
-  <!-- <ItemGroup>
-    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Azure\Microsoft.Developer.Azure.csproj" />
-    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Data.Cosmos\Microsoft.Developer.Data.Cosmos.csproj" />
-    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Hosting.Functions\Microsoft.Developer.Hosting.Functions.csproj" />
-    <ProjectReference Include="..\..\..\developer-platform\src\Microsoft.Developer.Providers\Microsoft.Developer.Providers.csproj" />
-  </ItemGroup> -->
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Developer.Azure" />
+        <PackageReference Include="Microsoft.Developer.Data.Cosmos" />
+        <PackageReference Include="Microsoft.Developer.Hosting.Functions" />
+        <PackageReference Include="Microsoft.Developer.Providers" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup>
     <None Update="host.json">

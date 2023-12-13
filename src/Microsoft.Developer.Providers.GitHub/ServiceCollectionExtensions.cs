@@ -15,37 +15,6 @@ namespace Microsoft.Developer.Providers.GitHub;
 
 public static class ServiceCollectionExtensions
 {
-    public static IDeveloperPlatformBuilder AddCosmos(this IDeveloperPlatformBuilder builder, IConfiguration config, bool removeTrace = true)
-    {
-        builder.Services
-            .AddSingleton(typeof(IDocumentRepositoryFactory<>), typeof(CosmosDocumentRepositoryFactory<>));
-
-        builder.Services
-            .Configure<CosmosOptions>(config.GetSection(CosmosOptions.Section));
-
-        builder.AddDocumentRepository<MappedUser>(nameof(MappedUser), options =>
-        {
-            options.DatabaseName = "GitHub";
-            options.ContainerName = "Users";
-            options.UniqueKeys.Add("/localUser/id");
-            options.UniqueKeys.Add("/localUser/login");
-            options.SerializerOptions = EntitySerializerOptions.Database;
-        });
-
-        builder.Services.AddSingleton<IMappedUserRepository<MappedUser, GitHubUser>, MappedUserRepository<MappedUser, GitHubUser>>(
-            services => new MappedUserRepository<MappedUser, GitHubUser>(
-                services.GetRequiredService<IDocumentRepositoryFactory<MappedUser>>().Create(nameof(MappedUser))));
-
-        if (removeTrace)
-        {
-            var defaultTrace = Type.GetType("Microsoft.Azure.Cosmos.Core.Trace.DefaultTrace,Microsoft.Azure.Cosmos.Direct");
-            var traceSource = (TraceSource?)defaultTrace?.GetProperty("TraceSource")?.GetValue(null);
-            traceSource?.Listeners.Remove("Default");
-        }
-
-        return builder;
-    }
-
     public static IDeveloperPlatformBuilder AddGitHubProvider(this IDeveloperPlatformBuilder builder, Action<IGitHubProviderBuilder> configure)
     {
         builder.Services.TryAddSingleton(TimeProvider.System);
@@ -61,6 +30,24 @@ public static class ServiceCollectionExtensions
             .AddScoped<IGitHubInstallationService, GitHubInstallationService>();
 
         builder.AddProvider(b => new GhBuilder(b, b.Services), configure);
+
+        return builder;
+    }
+
+    public static IDeveloperPlatformBuilder AddCosmosUsers(this IDeveloperPlatformBuilder builder)
+    {
+        builder.AddDocumentRepository<MappedUser>(nameof(MappedUser), options =>
+        {
+            options.DatabaseName = "GitHub";
+            options.ContainerName = "Users";
+            options.UniqueKeys.Add("/localUser/id");
+            options.UniqueKeys.Add("/localUser/login");
+            options.SerializerOptions = EntitySerializerOptions.Database;
+        });
+
+        builder.Services.AddSingleton<IMappedUserRepository<MappedUser, GitHubUser>, MappedUserRepository<MappedUser, GitHubUser>>(
+            services => new MappedUserRepository<MappedUser, GitHubUser>(
+                services.GetRequiredService<IDocumentRepositoryFactory<MappedUser>>().Create(nameof(MappedUser))));
 
         return builder;
     }
