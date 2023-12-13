@@ -1,5 +1,13 @@
 <Project>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' and '$(CI)' != 'true' ">
+    <MsDeveloperGlobalBuildPropsPath>$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))</MsDeveloperGlobalBuildPropsPath>
+    <ImportMsDeveloperGlobalBuildProps>$(MSDEV_IMPORT_GLOBAL_PROPS)</ImportMsDeveloperGlobalBuildProps>
+    <ImportMsDeveloperGlobalBuildProps Condition=" '$(ImportMsDeveloperGlobalBuildProps)' == '' ">true</ImportMsDeveloperGlobalBuildProps>
+  </PropertyGroup>
+
+  <Import Condition=" '$(ImportMsDeveloperGlobalBuildProps)' == 'true' and exists('$(MsDeveloperGlobalBuildPropsPath)') " Project="$(MsDeveloperGlobalBuildPropsPath)" />
+
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

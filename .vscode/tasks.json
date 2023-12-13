@@ -33,7 +33,7 @@
                 "group": "providers",
                 "panel": "dedicated",
             },
-            "dependsOn": "build sln"
+            // "dependsOn": "build sln"
         },
         {
             "label": "terminate tasks",
@@ -68,6 +68,11 @@
             "problemMatcher": "$msCompile",
             "presentation": {
                 "group": "build",
+            },
+            "options": {
+                "env": {
+                    "MSDEV_IMPORT_GLOBAL_PROPS": "false"
+                }
             }
         },
         {
