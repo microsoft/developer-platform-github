@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="$(MSBuildThisFileDirectory)../Directory.Build.Combined.props" Condition="Exists('$(MSBuildThisFileDirectory)../Directory.Build.Combined.props')" />
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' and '$(CI)' != 'true' ">
     <MsDeveloperGlobalBuildPropsPath>$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))</MsDeveloperGlobalBuildPropsPath>
