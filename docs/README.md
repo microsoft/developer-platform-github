@@ -29,3 +29,86 @@ Custom properties are defined at the organization level, and applied at the repo
 |template  | < TBD > |
 |workflows | The repository that has this custom properties will contribute automation workflows to the internal developer platform. (See: [example workflows repsitory](https://github.com/Contoso-Inc/workflows)) |
 
+
+##### `workflows`
+
+When a `dev_platform` custom property in a repository is annotated with the value of `workflows`, the GitHub provider treat the actions contained in `.github/workflows` folder as automation templates for use within the developer platform. As an example, see the [Contoso-Inc workflows repository](https://github.com/Contoso-Inc/workflows/tree/main/.github/workflows). When the the developer platform requests all of the entities from each provider, the GitHub provider responds with the set of github actions, represented as workflow templates, that are contained in this directory. Here is the how the developer platform represents the [`hello.yml` workflow](https://github.com/Contoso-Inc/workflows/blob/main/.github/workflows/hello.yml).
+
+```json
+ {
+    "apiVersion": "developer.microsoft.com/v1",
+    "kind": "Template",
+    "metadata": {
+      "name": "workflows-hello.yml",
+      "namespace": "contoso-inc",
+      "title": "Say Hello",
+      "description": "This workflow is used to test the different input types. It simply says hello to the person you specify.",
+      "labels": {
+        "github.com/org": "Contoso-Inc",
+        "github.com/repo": "workflows",
+        "github.com/id": "70315432",
+        "github.com/name": "Say Hello",
+        "github.com/path": ".github/workflows/hello.yml",
+        "github.com/workflow": "hello.yml"
+      },
+      "links": [
+        {
+          "url": "https://github.com/Contoso-Inc/workflows/blob/main/.github/workflows/hello.yml",
+          "title": "web"
+        },
+        {
+          "url": "https://github.com/Contoso-Inc/workflows",
+          "title": "repo"
+        }
+      ],
+      "provider": "github.com"
+    },
+    "spec": {
+      "inputJsonSchema": "{\"type\":\"object\",\"required\":[\"name\",\"environment\"],\"properties\":{\"name\":{\"name\":\"name\",\"title\":\"Name\",\"type\":\"string\",\"description\":\"Who would you like to say hello to?\"},\"yell\":{\"name\":\"yell\",\"title\":\"Yell\",\"type\":\"boolean\",\"description\":\"Would you like to yell?\",\"default\":false,\"value\":false},\"environment\":{\"name\":\"environment\",\"title\":\"Environment\",\"type\":\"string\",\"description\":\"The GitHub Environment to deploy to\",\"default\":\"Dev\",\"value\":\"Dev\",\"enum\":[\"Dev\",\"Prod\",\"Staging\",\"Test\"]}}}"
+    }
+  }
+```
+
+This approach unlocks all of the actions in the [GitHub Marketplace](https://github.com/marketplace?category=&query=&type=actions&verification=). For example, suppose that you wanted to send a meesage via Microsoft Teams whenenver as part of a larger workflow, e.g. when the developer platform realizes a repository is out of compliance. In this scenario, the Platform Engineering Team can wrap an existing GitHub action for sending Teams messages. 
+
+```json
+  {
+    "apiVersion": "developer.microsoft.com/v1",
+    "kind": "Template",
+    "metadata": {
+      "name": "workflows-notify_team.yml",
+      "namespace": "contoso-inc",
+      "title": "NotifyTeam",
+      "description": "Runs the NotifyTeam workflow.",
+      "labels": {
+        "github.com/org": "Contoso-Inc",
+        "github.com/repo": "workflows",
+        "github.com/id": "79561848",
+        "github.com/name": "NotifyTeam",
+        "github.com/path": ".github/workflows/notify_team.yml",
+        "github.com/workflow": "notify_team.yml"
+      },
+      "links": [
+        {
+          "url": "https://github.com/Contoso-Inc/workflows/blob/main/.github/workflows/notify_team.yml",
+          "title": "web"
+        },
+        {
+          "url": "https://github.com/Contoso-Inc/workflows",
+          "title": "repo"
+        }
+      ],
+      "provider": "github.com"
+    },
+```
+
+##### Using Workflows in the Developer Platform
+
+For organizations that have a GitHub actions, being able to quickly add them into the developer platform is a great way to get started by leveraging existing investments. Since the developer platform is API driven, organizations that choose to build a portal/web interface, can quickly expose these actions in a UI, enabling the developer to discover all of the capabilities that they can use directly, or compose into their own templates for use with their project. 
+> ![Contoso-Inc Mock Developer Portal](./images/mock-developer-portal.png)
+> <sup>Contoso Inc's Mock Developer Portal</sup>
+
+
+
+
+
