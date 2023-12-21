@@ -108,7 +108,9 @@ For organizations that have a GitHub actions, being able to quickly add them int
 > ![Contoso-Inc Mock Developer Portal](./images/mock-developer-portal.png)
 > <sup>Contoso Inc's Mock Developer Portal</sup>
 
+One key advantage of being API driven is that all of the workflows can now be used with Copilot. For example, there is a protype of a VS Code plugin that integrates the developer platform with Copilot. This enables the developer to leverage all of the workflows directly from their IDE.
 
+> < instert picture of vs code copilot here >
 
 
 
