@@ -108,9 +108,14 @@ For organizations that have a GitHub actions, being able to quickly add them int
 > ![Contoso-Inc Mock Developer Portal](./images/mock-developer-portal.png)
 > <sup>Contoso Inc's Mock Developer Portal</sup>
 
-One key advantage of being API driven is that all of the workflows can now be used with Copilot. For example, there is a protype of a VS Code plugin that integrates the developer platform with Copilot. This enables the developer to leverage all of the workflows directly from their IDE.
+#### Copilot Integration
 
-> < instert picture of vs code copilot here >
+One key advantage of being API driven is that all of the workflows can now be used with Copilot. For example, there is a protype of a VS Code plugin that integrates the developer platform with Copilot. This enables the developer to leverage all of the workflows directly from their IDE. Here is an example of interacting with the developer platform from Copilot within VS Code. The workflow that was created above to send a message to Teams is discovered via the `@devplat /list` instruction to Copilot. 
+> ![Copilot Integration](./images/copilot-integration.png)
+> <sup>Using Copilot with the Developer Platform</sup>
 
+### Summary
+
+The GitHub provider is an example of how easy it is to integrate with the developer platform. It enables the platform engineering team to leverage the security controls of GitHub, and the power of GitHub actions to quickly add capabilities to the developer platform. By adding a provider, developers can now interact with the developer platform in a consistent manner, regardless of the user interface they choose to use.
 
 
