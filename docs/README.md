@@ -106,7 +106,7 @@ This approach unlocks all of the actions in the [GitHub Marketplace](https://git
 
 For organizations that have a GitHub actions, being able to quickly add them into the developer platform is a great way to get started by leveraging existing investments. Since the developer platform is API driven, organizations that choose to build a portal/web interface, can quickly expose these actions in a UI, enabling the developer to discover all of the capabilities that they can use directly, or compose into their own templates for use with their project. 
 > ![Contoso-Inc Mock Developer Portal](./images/mock-developer-portal.png)
-> <sup>Contoso Inc's Mock Developer Portal</sup>
+> <sup>Contoso Inc's [Mock Developer Portal](https://github.com/microsoft/developer-platform-website)</sup>
 
 #### Copilot Integration
 
