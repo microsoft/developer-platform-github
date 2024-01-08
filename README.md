@@ -2,7 +2,13 @@
 
 [![developer-platform-github](https://img.shields.io/github/v/release/microsoft/developer-platform-github?logo=github)](https://github.com/microsoft/developer-platform-github/releases)
 
-`// TODO`
+
+> [!IMPORTANT] 
+> This project is currently in the incubation phase, and as such, it's important to note that aspects of the project are still under active development. We will do our best to conduct all development openly by documenting features and requirements.
+
+## Getting Started
+
+Please checkout the [docs](./docs/README.md) to understand how the GitHub provider works and how you can use it with the [developer platform](https://github.com/microsoft/developer-platform).
 
 ## Contributing
 
