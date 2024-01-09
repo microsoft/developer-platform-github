@@ -15,6 +15,7 @@ namespace Microsoft.Developer.Providers.GitHub.API;
 public class GetEntities
 {
     private static readonly EntityKind[] supportedKinds = [
+        EntityKind.Provider,
         EntityKind.Repo,
         EntityKind.Template
     ];
@@ -66,6 +67,11 @@ public class GetEntities
 
         if (await github.GetOrganizations(token) is { } orgs && orgs.Count > 0)
         {
+            if (kind == EntityKind.Provider)
+            {
+                return new EntitiesResult([ProviderEntity.Create()]);
+            }
+
             if (kind == EntityKind.Repo)
             {
                 var repos = await Task.WhenAll(orgs.Select(o => GetRepos(o, token)));
@@ -86,7 +92,7 @@ public class GetEntities
     {
         var entities = await Task.WhenAll(GetRepos(org, token), GetTemplates(org, token));
 
-        return entities.SelectMany(e => e);
+        return [.. entities.SelectMany(e => e), ProviderEntity.Create()];
     }
 
     internal static async Task<IEnumerable<Entity>> GetRepos(IGitHubOrganization org, CancellationToken token)

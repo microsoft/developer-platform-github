@@ -15,6 +15,7 @@ namespace Microsoft.Developer.Providers.GitHub.API;
 public class GetEntity
 {
     private static readonly EntityKind[] supportedKinds = [
+        EntityKind.Provider,
         EntityKind.Repo,
         EntityKind.Template
     ];
@@ -37,12 +38,18 @@ public class GetEntity
             return new NotFoundResult();
         }
 
+        if (entityRef.Kind == EntityKind.Provider)
+        {
+            var provider = ProviderEntity.Create();
+            return new EntityResult(provider);
+        }
+
         if (string.IsNullOrEmpty(@namespace))
         {
             return new BadRequestObjectResult("Unable to get GitHub organization from namespace");
         }
 
-        // namespace is always the github organization
+        // namespace is always the github organization (unless kind is provider)
         if (entityRef.Namespace.Equals(Entity.Defaults.Namespace))
         {
             return new BadRequestObjectResult($"Invalid namespace '{entityRef.Namespace}'.");
