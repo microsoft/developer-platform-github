@@ -40,7 +40,7 @@ public class GetEntity
 
         if (entityRef.Kind == EntityKind.Provider)
         {
-            return ProviderEntity.Create() is { } provider && provider.GetEntityRef().Equals(entityRef)
+            return ProviderEntity.Create() is { } provider && provider.GetEntityRef().Name.Equals(entityRef.Name)
                 ? new EntityResult(provider) : new NotFoundResult();
         }
 
