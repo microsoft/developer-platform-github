@@ -45,7 +45,7 @@ public class StartWorkflow(IGitHubInstallationService installations, OAuthUserLo
 
         var preRuns = preRunsResponse.WorkflowRuns.OrderByDescending(r => r.CreatedAt).ToList();
 
-        await workflow.Dispatch(input.Payload.GetWorkflowInputs(), token);
+        await workflow.Dispatch(input.Payload.GetWorkflowTemplateInputs(), token);
 
         var newRun = default(Octokit.WorkflowRun);
 

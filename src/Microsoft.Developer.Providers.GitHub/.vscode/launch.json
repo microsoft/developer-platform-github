@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "GitHub",
+            "type": "coreclr",
+            "request": "attach",
+            "processId": "${command:azureFunctions.pickProcess}",
+            "targetArchitecture": "arm64",
+            "postDebugTask": "terminate tasks",
+            "presentation": {
+                // "hidden": true,
+            },
+        }
+    ]
+}

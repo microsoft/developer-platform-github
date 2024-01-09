@@ -15,18 +15,15 @@ using Octokit.Webhooks;
 namespace Microsoft.Developer.Providers.GitHub.API;
 
 /// <summary>
-/// Replacement for Octokit.Webhooks.AzureFunctions.GitHubWebooksHttpFunction that supports new AspNetCore functions
+/// Replacement for Octokit.Webhooks.AzureFunctions.GitHubWebhooksHttpFunction that supports new AspNetCore functions
 /// https://github.com/octokit/webhooks.net/blob/main/src/Octokit.Webhooks.AzureFunctions/GitHubWebhooksHttpFunction.cs
 /// </summary>
-public class Webhooks(IOptions<GitHubOptions> options, WebhookEventProcessor processor)
+public class Webhooks(ILogger<Webhooks> log, IOptions<GitHubOptions> options, WebhookEventProcessor processor)
 {
     [Function(nameof(HandleWebhook))]
     public async Task<IActionResult?> HandleWebhook(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "github/webhooks")] HttpRequest req,
-        FunctionContext context, CancellationToken token)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = "github/webhooks")] HttpRequest req, CancellationToken token)
     {
-        var log = context.GetLogger(nameof(Webhooks));
-
         if (!VerifyContentType(req, MediaTypeNames.Application.Json))
         {
             log.LogError("GitHub event does not have the correct content type.");

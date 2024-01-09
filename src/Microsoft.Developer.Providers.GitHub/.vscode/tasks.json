@@ -1,0 +1,38 @@
+{
+    "version": "2.0.0",
+    "type": "shell",
+    "problemMatcher": [],
+    "presentation": {
+        "showReuseMessage": false,
+    },
+    "args": [],
+    "inputs": [
+        {
+            "id": "terminate",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "terminateAll"
+        }
+    ],
+    "tasks": [
+        {
+            "label": "func: start github",
+            "type": "func",
+            "options": {
+                "cwd": "${workspaceFolder}/../../artifacts/bin/Microsoft.Developer.Providers.GitHub/debug"
+            },
+            "command": "host start --dotnet-isolated-debug --no-build --port 7065",
+            "isBackground": true,
+            "problemMatcher": "$func-dotnet-watch",
+            "presentation": {
+                "group": "providers",
+                "panel": "dedicated",
+            },
+        },
+        {
+            "label": "terminate tasks",
+            "command": "echo ${input:terminate}",
+            "problemMatcher": []
+        }
+    ]
+}

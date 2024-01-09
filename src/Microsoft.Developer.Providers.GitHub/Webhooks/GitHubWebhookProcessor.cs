@@ -9,6 +9,8 @@ using Octokit.Webhooks.Events.CheckSuite;
 using Octokit.Webhooks.Events.CodeScanningAlert;
 using Octokit.Webhooks.Events.CommitComment;
 using Octokit.Webhooks.Events.ContentReference;
+using Octokit.Webhooks.Events.CustomProperty;
+using Octokit.Webhooks.Events.CustomPropertyValues;
 using Octokit.Webhooks.Events.DependabotAlert;
 using Octokit.Webhooks.Events.DeployKey;
 using Octokit.Webhooks.Events.Deployment;
@@ -69,6 +71,8 @@ public class GitHubWebhookProcessor(ILogger<GitHubWebhookProcessor> log, IUserOA
     protected override Task ProcessCommitCommentWebhookAsync(WebhookHeaders headers, CommitCommentEvent hookEvent, CommitCommentAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
     protected override Task ProcessContentReferenceWebhookAsync(WebhookHeaders headers, ContentReferenceEvent hookEvent, ContentReferenceAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
     protected override Task ProcessCreateWebhookAsync(WebhookHeaders headers, CreateEvent hookEvent) => HandleUnhandledWebhook(headers, hookEvent);
+    protected override Task ProcessCustomPropertyValuesWebhookAsync(WebhookHeaders headers, CustomPropertyValuesEvent hookEvent, CustomPropertyValuesAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
+    protected override Task ProcessCustomPropertyWebhookAsync(WebhookHeaders headers, CustomPropertyEvent hookEvent, CustomPropertyAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
     protected override Task ProcessDeleteWebhookAsync(WebhookHeaders headers, DeleteEvent hookEvent) => HandleUnhandledWebhook(headers, hookEvent);
     protected override Task ProcessDependabotAlertWebhookAsync(WebhookHeaders headers, DependabotAlertEvent hookEvent, DependabotAlertAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
     protected override Task ProcessDeployKeyWebhookAsync(WebhookHeaders headers, DeployKeyEvent hookEvent, DeployKeyAction action) => HandleUnhandledWebhook(headers, hookEvent, action);
