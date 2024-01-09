@@ -50,11 +50,11 @@ public class CreateEntities
 
             instanceId = await taskClient.ScheduleNewOrchestrationInstanceAsync(nameof(WorkflowOrchestrator), input, token);
         }
-        else if (await org.GetRepoTemplateEntity(templateRef, token) is { } template)
+        else if (await org.GetTemplateRepoTemplateEntity(templateRef, token) is { } template)
         {
-            var repoTemplate = templateRef.Name.Equals(GitHubConstants.NewRepoTemplateName) ? null : templateRef.Name;
+            var repoTemplate = templateRef.Name.Equals(GitHubConstants.NewRepositoryTemplateName) ? null : templateRef.Name;
 
-            var input = new RepositoryOrchestrator.Input(user, org.Name, payload.GetNewRepositoryInputs(), repoTemplate);
+            var input = new RepositoryOrchestrator.Input(user, org.Name, payload.GetNewRepoTemplateInputs(), repoTemplate);
 
             instanceId = await taskClient.ScheduleNewOrchestrationInstanceAsync(nameof(RepositoryOrchestrator), input, token);
         }

@@ -51,10 +51,7 @@ public class GetEntities
     {
         var log = context.GetLogger<GetEntities>();
 
-        var entityRef = context.Features.Get<IDeveloperPlatformRequestFeature>()
-            ?? throw new InvalidOperationException("Unable to get EntityRef from context.Features");
-
-        if (!supportedKinds.Contains(entityRef.Kind))
+        if (!supportedKinds.Contains(kind))
         {
             return EntitiesResult.Empty;
         }
@@ -69,13 +66,13 @@ public class GetEntities
 
         if (await github.GetOrganizations(token) is { } orgs && orgs.Count > 0)
         {
-            if (entityRef.Kind == EntityKind.Repo)
+            if (kind == EntityKind.Repo)
             {
                 var repos = await Task.WhenAll(orgs.Select(o => GetRepos(o, token)));
                 return new EntitiesResult(repos);
             }
 
-            if (entityRef.Kind == EntityKind.Template)
+            if (kind == EntityKind.Template)
             {
                 var templates = await Task.WhenAll(orgs.Select(o => GetTemplates(o, token)));
                 return new EntitiesResult(templates);
@@ -110,7 +107,7 @@ public class GetEntities
         => (await org.GetTemplateRepositories(token)).Select(t => t.ToTemplateEntity());
 
     private static async Task<IEnumerable<Entity>> GetNewRepositoryTemplates(IGitHubOrganization org, CancellationToken token)
-        => [await org.NewRepositoryTemplateEntity(token)];
+        => [await org.NewRepoTemplateEntity(token)];
 
     private static async Task<IEnumerable<Entity>> GetWorkflowTemplates(IGitHubOrganization org, CancellationToken token)
     {

@@ -10,7 +10,7 @@ internal static class GitHubConstants
 {
     public const string ProductHeaderName = "MSDev";
 
-    public const string NewRepoTemplateName = "new-repo";
+    public const string NewRepositoryTemplateName = "new-repo";
 
     public const string Accepts = "application/vnd.github+json";
 

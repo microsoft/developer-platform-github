@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using Microsoft.Developer.Data;
-using Microsoft.Developer.Data.Cosmos;
 using Microsoft.Developer.Providers.GitHub.Webhooks;
 using Microsoft.Developer.Serialization.Json.Entities;
 using Microsoft.Extensions.Configuration;

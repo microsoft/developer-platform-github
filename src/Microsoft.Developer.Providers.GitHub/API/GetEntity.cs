@@ -26,21 +26,18 @@ public class GetEntity
     {
         var log = context.GetLogger<GetEntity>();
 
-        var request = context.Features.Get<IDeveloperPlatformRequestFeature>()
-            ?? throw new InvalidOperationException("Unable to get EntityRef from context.Features");
-
-        var entityRef = new EntityRef(request.Kind)
+        var entityRef = new EntityRef(kind)
         {
-            Name = request.Name,
-            Namespace = request.Namespace
+            Name = name,
+            Namespace = @namespace
         };
 
-        if (!supportedKinds.Contains(entityRef.Kind))
+        if (!supportedKinds.Contains(kind))
         {
             return new NotFoundResult();
         }
 
-        if (entityRef.Namespace.IsEmpty)
+        if (string.IsNullOrEmpty(@namespace))
         {
             return new BadRequestObjectResult("Unable to get GitHub organization from namespace");
         }
