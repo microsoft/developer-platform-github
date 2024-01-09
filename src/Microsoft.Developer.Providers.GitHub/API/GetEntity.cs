@@ -40,8 +40,8 @@ public class GetEntity
 
         if (entityRef.Kind == EntityKind.Provider)
         {
-            var provider = ProviderEntity.Create();
-            return new EntityResult(provider);
+            return ProviderEntity.Create() is { } provider && provider.GetEntityRef().Equals(entityRef)
+                ? new EntityResult(provider) : new NotFoundResult();
         }
 
         if (string.IsNullOrEmpty(@namespace))

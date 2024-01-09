@@ -57,6 +57,11 @@ public class GetEntities
             return EntitiesResult.Empty;
         }
 
+        if (kind == EntityKind.Provider)
+        {
+            return new EntitiesResult([ProviderEntity.Create()]);
+        }
+
         var github = context.Features.GetRequiredFeature<IDeveloperPlatformGitHubFeature>().UserService;
 
         if (github is null)
@@ -67,11 +72,6 @@ public class GetEntities
 
         if (await github.GetOrganizations(token) is { } orgs && orgs.Count > 0)
         {
-            if (kind == EntityKind.Provider)
-            {
-                return new EntitiesResult([ProviderEntity.Create()]);
-            }
-
             if (kind == EntityKind.Repo)
             {
                 var repos = await Task.WhenAll(orgs.Select(o => GetRepos(o, token)));
